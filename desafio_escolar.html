@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎓 Desafío Escolar - Juego Educativo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px 20px;
+            min-height: 400px;
+        }
+
+        .screen {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .menu-option {
+            display: block;
+            width: 100%;
+            padding: 20px;
+            margin: 15px 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .menu-option:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .menu-option:active {
+            transform: translateY(0);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+        }
+
+        .option-btn {
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .option-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .option-btn.secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .game-info {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .info-item {
+            text-align: center;
+        }
+
+        .info-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .question-container {
+            background: #f9f9f9;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .question-number {
+            color: #667eea;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 25px;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .option {
+            padding: 15px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1.05em;
+        }
+
+        .option:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .option.selected {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .option.correct {
+            background: #4caf50;
+            color: white;
+            border-color: #4caf50;
+        }
+
+        .option.incorrect {
+            background: #f44336;
+            color: white;
+            border-color: #f44336;
+        }
+
+        .lives {
+            font-size: 2em;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .message {
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-size: 1.1em;
+            text-align: center;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .message.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .buttons-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 15px;
+            font-size: 1em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-secondary {
+            background: #ddd;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #ccc;
+        }
+
+        .scores-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .scores-table th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .scores-table td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .scores-table tr:hover {
+            background: #f5f5f5;
+        }
+
+        .final-score {
+            text-align: center;
+            font-size: 2em;
+            color: #667eea;
+            margin: 30px 0;
+            font-weight: bold;
+        }
+
+        .rating {
+            text-align: center;
+            font-size: 4em;
+            margin: 20px 0;
+        }
+
+        .rating-text {
+            text-align: center;
+            font-size: 1.3em;
+            color: #333;
+            margin: 20px 0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s;
+        }
+
+        .instructions-text {
+            line-height: 1.8;
+            color: #333;
+        }
+
+        .instructions-text h3 {
+            color: #667eea;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        .instructions-text ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        .instructions-text li {
+            margin: 8px 0;
+        }
+
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .grid-3 {
+                grid-template-columns: 1fr;
+            }
+
+            .game-info {
+                grid-template-columns: 1fr;
+            }
+
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .scores-table {
+                font-size: 0.9em;
+            }
+
+            .scores-table th,
+            .scores-table td {
+                padding: 8px;
+            }
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background: #ddd;
+            color: #333;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+
+        .back-btn:hover {
+            background: #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 DESAFÍO ESCOLAR</h1>
+            <p>Juego educativo interactivo para estudiantes 6°-11°</p>
+        </div>
+
+        <div class="content">
+            <!-- Pantalla Principal -->
+            <div id="menuPrincipal" class="screen active">
+                <button class="menu-option" onclick="irA('seleccionarMateria')">🎮 Jugar</button>
+                <button class="menu-option" onclick="irA('verPuntajes')">📊 Ver Puntajes</button>
+                <button class="menu-option" onclick="irA('instrucciones')">📚 Instrucciones</button>
+                <button class="menu-option" onclick="salir()">🚪 Salir</button>
+            </div>
+
+            <!-- Seleccionar Materia -->
+            <div id="seleccionarMateria" class="screen">
+                <h2>📚 Selecciona una Materia</h2>
+                <p style="margin: 20px 0; color: #666;">Elige el área en la que deseas ser examinado</p>
+                <div class="grid-3">
+                    <button class="option-btn" onclick="seleccionarMateria('Matemáticas')">📐 Matemáticas</button>
+                    <button class="option-btn" onclick="seleccionarMateria('Inglés')">🇬🇧 Inglés</button>
+                    <button class="option-btn" onclick="seleccionarMateria('Historia')">📜 Historia</button>
+                </div>
+                <button class="back-btn" onclick="irA('menuPrincipal')">← Volver</button>
+            </div>
+
+            <!-- Seleccionar Grado -->
+            <div id="seleccionarGrado" class="screen">
+                <h2>🎓 Selecciona tu Grado</h2>
+                <p style="margin: 20px 0; color: #666;">Materia: <strong id="materiaSeleccionada">-</strong></p>
+                <div class="grid-3">
+                    <button class="option-btn" onclick="seleccionarGrado(6)">6°</button>
+                    <button class="option-btn" onclick="seleccionarGrado(7)">7°</button>
+                    <button class="option-btn" onclick="seleccionarGrado(8)">8°</button>
+                    <button class="option-btn" onclick="seleccionarGrado(9)">9°</button>
+                    <button class="option-btn" onclick="seleccionarGrado(10)">10°</button>
+                    <button class="option-btn" onclick="seleccionarGrado(11)">11°</button>
+                </div>
+                <button class="back-btn" onclick="irA('seleccionarMateria')">← Volver</button>
+            </div>
+
+            <!-- Pantalla del Juego -->
+            <div id="juego" class="screen">
+                <div class="game-info">
+                    <div class="info-item">
+                        <div class="info-label">Materia</div>
+                        <div class="info-value" id="gameMateria">-</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Grado</div>
+                        <div class="info-value" id="gameGrado">-</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Puntaje</div>
+                        <div class="info-value" id="gamePuntaje">0</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Vidas</div>
+                        <div id="gameVidas" style="font-size: 1.5em; text-align: center;">❤️❤️❤️</div>
+                    </div>
+                </div>
+
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progreso" style="width: 0%;"></div>
+                </div>
+                <div style="text-align: center; color: #666; margin-bottom: 20px;">
+                    <span id="contador">1/10</span> preguntas
+                </div>
+
+                <div class="question-container">
+                    <div class="question-number" id="questionNumber">Pregunta 1</div>
+                    <div class="question-text" id="questionText">¿Pregunta?</div>
+                    <div class="options-grid" id="optionsGrid">
+                        <!-- Las opciones se generarán con JavaScript -->
+                    </div>
+                </div>
+
+                <div id="mensaje" style="display: none;"></div>
+
+                <div class="buttons-container">
+                    <button class="btn btn-primary" id="btnResponder" onclick="responder()">Responder</button>
+                    <button class="btn btn-secondary" onclick="confirmarSalir()">Salir del Juego</button>
+                </div>
+            </div>
+
+            <!-- Ver Puntajes -->
+            <div id="verPuntajes" class="screen">
+                <h2>📊 Puntajes de la Sesión</h2>
+                <div id="tablaRespuesta"></div>
+                <button class="back-btn" onclick="irA('menuPrincipal')">← Volver</button>
+                
+            </div>
+
+            <!-- Instrucciones -->
+            <div id="instrucciones" class="screen">
+                <h2>📚 Instrucciones del Juego</h2>
+                <div class="instructions-text">
+                    <h3>🎯 Objetivo</h3>
+                    <p>Responder correctamente todas las preguntas para obtener el máximo puntaje posible.</p>
+
+                    <h3>📋 Reglas</h3>
+                    <ul>
+                        <li>Comienzas cada partida con <strong>3 vidas</strong> (❤️❤️❤️)</li>
+                        <li>Respuesta correcta: <strong>+10 puntos</strong></li>
+                        <li>Respuesta incorrecta: <strong>-1 vida</strong></li>
+                        <li>Bonus: <strong>+5 puntos adicionales</strong> por cada 3 respuestas correctas consecutivas</li>
+                        <li>Si llegas a <strong>0 vidas</strong>, el juego termina</li>
+                        <li>Total de <strong>10 preguntas</strong> por partida</li>
+                    </ul>
+
+                    <h3>🎮 Cómo Jugar</h3>
+                    <ul>
+                        <li>Selecciona una materia: <strong>Matemáticas, Inglés o Historia</strong></li>
+                        <li>Elige tu grado: <strong>6° a 11°</strong></li>
+                        <li>Lee cada pregunta cuidadosamente</li>
+                        <li>Haz clic en tu respuesta (A, B, C o D)</li>
+                        <li>Presiona el botón "Responder"</li>
+                        <li>Recibe retroalimentación inmediata</li>
+                        <li>Continúa hasta la siguiente pregunta o termina el juego</li>
+                    </ul>
+
+                    <h3>📚 Materias y Temas</h3>
+                    <ul>
+                        <li><strong>Matemáticas:</strong> Operaciones básicas, geometría, ecuaciones, trigonometría, cálculo</li>
+                        <li><strong>Inglés:</strong> Vocabulario, gramática, tiempos verbales, comprensión de lectura</li>
+                        <li><strong>Historia:</strong> Eventos mundiales, personajes históricos, fechas, movimientos sociales</li>
+                    </ul>
+
+                    <h3>⭐ Calificación Final</h3>
+                    <ul>
+                        <li><strong>100%:</strong> 🌟 ¡PERFECTO!</li>
+                        <li><strong>80-99%:</strong> 🌟 ¡EXCELENTE!</li>
+                        <li><strong>60-79%:</strong> 👍 ¡MUY BIEN!</li>
+                        <li><strong>40-59%:</strong> 📚 BUEN INTENTO</li>
+                        <li><strong>Menos de 40%:</strong> 📚 SIGUE ESTUDIANDO</li>
+                    </ul>
+                </div>
+                <button class="back-btn" onclick="irA('menuPrincipal')">← Volver</button>
+            </div>
+
+            <!-- Resultado Final -->
+            <div id="resultadoFinal" class="screen">
+                <h2>🏆 FIN DEL JUEGO 🏆</h2>
+                <div id="resultadoContenido"></div>
+                <button class="btn btn-primary" onclick="irA('menuPrincipal')" style="width: 100%; margin-top: 20px;">Volver al Menú</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // BASE DE DATOS DE PREGUNTAS
+        // ============================================
+
+        const preguntas = [
+            // MATEMÁTICAS GRADO 6
+            { materia: "Matemáticas", grado: 6, pregunta: "¿Cuál es el resultado de 15 + 28?", opciones: ["40", "43", "45", "48"], respuesta: 1 },
+            { materia: "Matemáticas", grado: 6, pregunta: "¿Cuántos lados tiene un triángulo?", opciones: ["2", "3", "4", "5"], respuesta: 1 },
+            { materia: "Matemáticas", grado: 6, pregunta: "¿Cuál es el perímetro de un cuadrado con lado de 5 cm?", opciones: ["15", "20", "25", "30"], respuesta: 1 },
+            { materia: "Matemáticas", grado: 6, pregunta: "¿Cuál es el área de un rectángulo de 4×6?", opciones: ["10", "20", "24", "30"], respuesta: 2 },
+            { materia: "Matemáticas", grado: 6, pregunta: "¿Cuál es la mitad de 100?", opciones: ["40", "45", "50", "55"], respuesta: 2 },
+            { materia: "Matemáticas", grado: 6, pregunta: "¿Cuánto es 7 × 8?", opciones: ["54", "56", "58", "60"], respuesta: 1 },
+            { materia: "Matemáticas", grado: 6, pregunta: "¿Cuál es el doble de 25?", opciones: ["40", "45", "50", "55"], respuesta: 2 },
+            { materia: "Matemáticas", grado: 6, pregunta: "¿Cuántos minutos hay en una hora?", opciones: ["30", "60", "90", "120"], respuesta: 1 },
+
+            // MATEMÁTICAS GRADO 7
+            { materia: "Matemáticas", grado: 7, pregunta: "¿Cuál es el resultado de 45 + 67 - 23?", opciones: ["85", "89", "92", "95"], respuesta: 1 },
+            { materia: "Matemáticas", grado: 7, pregunta: "¿Cuál es el 25% de 80?", opciones: ["15", "20", "25", "30"], respuesta: 1 },
+            { materia: "Matemáticas", grado: 7, pregunta: "¿Cuánto es 12²?", opciones: ["120", "124", "144", "148"], respuesta: 2 },
+            { materia: "Matemáticas", grado: 7, pregunta: "¿Cuál es el MCM de 12 y 8?", opciones: ["24", "32", "48", "96"], respuesta: 0 },
+            { materia: "Matemáticas", grado: 7, pregunta: "¿Cuál es el resultado de 3/4 + 1/4?", opciones: ["1/2", "1", "3/2", "2"], respuesta: 1 },
+            { materia: "Matemáticas", grado: 7, pregunta: "¿Cuál es el MCD de 18 y 24?", opciones: ["2", "4", "6", "8"], respuesta: 2 },
+            { materia: "Matemáticas", grado: 7, pregunta: "¿Cuánto es 15% de 200?", opciones: ["20", "25", "30", "35"], respuesta: 2 },
+            { materia: "Matemáticas", grado: 7, pregunta: "¿Cuál es el resultado de 2/3 - 1/6?", opciones: ["1/6", "1/3", "1/2", "2/3"], respuesta: 2 },
+
+            // MATEMÁTICAS GRADO 8
+            { materia: "Matemáticas", grado: 8, pregunta: "¿Cuál es la solución de x + 5 = 12?", opciones: ["5", "6", "7", "8"], respuesta: 2 },
+            { materia: "Matemáticas", grado: 8, pregunta: "¿Cuál es el resultado de 2x - 3 = 9?", opciones: ["4", "5", "6", "7"], respuesta: 2 },
+            { materia: "Matemáticas", grado: 8, pregunta: "¿Cuánto es √64?", opciones: ["6", "7", "8", "9"], respuesta: 2 },
+            { materia: "Matemáticas", grado: 8, pregunta: "¿Cuál es el volumen de un cubo de lado 3?", opciones: ["9", "18", "27", "36"], respuesta: 2 },
+            { materia: "Matemáticas", grado: 8, pregunta: "¿Cuál es el resultado de (x + 3)² desarrollado?", opciones: ["x² + 9", "x² + 6x + 9", "x + 6x + 9", "x² + 3x + 9"], respuesta: 1 },
+            { materia: "Matemáticas", grado: 8, pregunta: "¿Cuánto es √144?", opciones: ["10", "11", "12", "13"], respuesta: 2 },
+            { materia: "Matemáticas", grado: 8, pregunta: "¿Cuál es la solución de 3x + 7 = 16?", opciones: ["2", "3", "4", "5"], respuesta: 1 },
+            { materia: "Matemáticas", grado: 8, pregunta: "¿Cuál es el área de un triángulo de base 8 y altura 5?", opciones: ["20", "30", "40", "50"], respuesta: 0 },
+
+            // MATEMÁTICAS GRADO 9
+            { materia: "Matemáticas", grado: 9, pregunta: "¿Cuál es la solución de 2x + 5 = 17?", opciones: ["5", "6", "7", "8"], respuesta: 1 },
+            { materia: "Matemáticas", grado: 9, pregunta: "¿Cuál es el resultado de (3 + 2)²?", opciones: ["20", "25", "30", "35"], respuesta: 1 },
+            { materia: "Matemáticas", grado: 9, pregunta: "¿Cuál es la solución de 3x² - 12 = 0?", opciones: ["±1", "±2", "±3", "±4"], respuesta: 1 },
+            { materia: "Matemáticas", grado: 9, pregunta: "¿Cuál es el discriminante de x² - 5x + 6 = 0?", opciones: ["1", "3", "4", "9"], respuesta: 0 },
+            { materia: "Matemáticas", grado: 9, pregunta: "¿Cuál es la pendiente de la recta y = 2x + 3?", opciones: ["1", "2", "3", "-2"], respuesta: 1 },
+            { materia: "Matemáticas", grado: 9, pregunta: "¿Cuál es la solución de x² - 9 = 0?", opciones: ["±2", "±3", "±4", "±5"], respuesta: 1 },
+            { materia: "Matemáticas", grado: 9, pregunta: "¿Cuánto es (2x)³?", opciones: ["6x", "8x³", "2x³", "x³"], respuesta: 1 },
+            { materia: "Matemáticas", grado: 9, pregunta: "¿Cuál es el resultado de √25 + √36?", opciones: ["9", "10", "11", "12"], respuesta: 1 },
+
+            // MATEMÁTICAS GRADO 10
+            { materia: "Matemáticas", grado: 10, pregunta: "¿Cuál es el valor de sen(90°)?", opciones: ["0", "1", "-1", "0.5"], respuesta: 1 },
+            { materia: "Matemáticas", grado: 10, pregunta: "¿Cuál es la derivada de f(x) = 3x²?", opciones: ["3x", "6x", "9x", "x³"], respuesta: 1 },
+            { materia: "Matemáticas", grado: 10, pregunta: "¿Cuál es el valor de cos(0°)?", opciones: ["0", "1", "-1", "0.5"], respuesta: 1 },
+            { materia: "Matemáticas", grado: 10, pregunta: "¿Cuál es la derivada de f(x) = x³ + 2x?", opciones: ["3x² + 2", "x² + 2x", "3x + 2", "x³ + 2"], respuesta: 0 },
+            { materia: "Matemáticas", grado: 10, pregunta: "¿Cuál es el valor de tan(45°)?", opciones: ["0", "1", "-1", "√2"], respuesta: 1 },
+            { materia: "Matemáticas", grado: 10, pregunta: "¿Cuál es el valor de sen(0°)?", opciones: ["0", "1", "-1", "0.5"], respuesta: 0 },
+            { materia: "Matemáticas", grado: 10, pregunta: "¿Cuál es la derivada de f(x) = 5x⁴?", opciones: ["5x³", "20x³", "4x⁵", "x⁴"], respuesta: 1 },
+            { materia: "Matemáticas", grado: 10, pregunta: "¿Cuál es el valor de cos(90°)?", opciones: ["0", "1", "-1", "0.5"], respuesta: 0 },
+
+            // MATEMÁTICAS GRADO 11
+            { materia: "Matemáticas", grado: 11, pregunta: "¿Cuál es el logaritmo de 100 en base 10?", opciones: ["1", "2", "10", "100"], respuesta: 1 },
+            { materia: "Matemáticas", grado: 11, pregunta: "¿Cuál es la integral de f(x) = 2x?", opciones: ["x", "x²", "2x²", "x² + C"], respuesta: 3 },
+            { materia: "Matemáticas", grado: 11, pregunta: "¿Cuál es el límite de 1/x cuando x → ∞?", opciones: ["1", "0", "∞", "-1"], respuesta: 1 },
+            { materia: "Matemáticas", grado: 11, pregunta: "¿Cuál es el valor de e (número de Euler)?", opciones: ["2.17", "2.71", "3.14", "1.73"], respuesta: 1 },
+            { materia: "Matemáticas", grado: 11, pregunta: "¿Cuál es la suma de los ángulos internos de un hexágono?", opciones: ["360°", "540°", "720°", "900°"], respuesta: 2 },
+            { materia: "Matemáticas", grado: 11, pregunta: "¿Cuál es el logaritmo de 1000 en base 10?", opciones: ["1", "2", "3", "4"], respuesta: 2 },
+            { materia: "Matemáticas", grado: 11, pregunta: "¿Cuál es la integral de f(x) = x²?", opciones: ["x³/3 + C", "2x + C", "x + C", "3x³ + C"], respuesta: 0 },
+            { materia: "Matemáticas", grado: 11, pregunta: "¿Cuál es el límite de (x² + 1)/x cuando x → ∞?", opciones: ["0", "1", "∞", "-∞"], respuesta: 2 },
+
+            // INGLÉS GRADO 6
+            { materia: "Inglés", grado: 6, pregunta: "¿Cuál es el pasado simple de 'go'?", opciones: ["going", "went", "gone", "goes"], respuesta: 1 },
+            { materia: "Inglés", grado: 6, pregunta: "¿Cuál es el artículo correcto? 'I have ___ apple'", opciones: ["a", "an", "the", "any"], respuesta: 1 },
+            { materia: "Inglés", grado: 6, pregunta: "¿Qué significa 'hello'?", opciones: ["adiós", "hola", "por favor", "gracias"], respuesta: 1 },
+            { materia: "Inglés", grado: 6, pregunta: "'She ___ to school every day'", opciones: ["go", "goes", "going", "gone"], respuesta: 1 },
+            { materia: "Inglés", grado: 6, pregunta: "¿Cuál es el opuesto de 'big'?", opciones: ["small", "large", "huge", "tall"], respuesta: 0 },
+            { materia: "Inglés", grado: 6, pregunta: "¿Cómo se dice 'gato' en inglés?", opciones: ["dog", "cat", "bird", "fish"], respuesta: 1 },
+            { materia: "Inglés", grado: 6, pregunta: "¿Cuál es el pasado simple de 'eat'?", opciones: ["eating", "ate", "eaten", "eats"], respuesta: 1 },
+            { materia: "Inglés", grado: 6, pregunta: "¿Qué significa 'goodbye'?", opciones: ["hola", "adiós", "buenas noches", "bienvenido"], respuesta: 1 },
+
+            // INGLÉS GRADO 7
+            { materia: "Inglés", grado: 7, pregunta: "¿Cuál es la forma correcta? 'He ___ play football'", opciones: ["likes", "like", "liking", "liked"], respuesta: 0 },
+            { materia: "Inglés", grado: 7, pregunta: "¿Cuál es el comparativo de 'tall'?", opciones: ["taller", "tallest", "more tall", "tall more"], respuesta: 0 },
+            { materia: "Inglés", grado: 7, pregunta: "'They are ___ their homework now'", opciones: ["do", "does", "doing", "done"], respuesta: 2 },
+            { materia: "Inglés", grado: 7, pregunta: "¿Cuál es el plural de 'child'?", opciones: ["childs", "children", "childes", "childer"], respuesta: 1 },
+            { materia: "Inglés", grado: 7, pregunta: "¿Cuál es el superlativo de 'good'?", opciones: ["better", "best", "gooder", "goodest"], respuesta: 1 },
+            { materia: "Inglés", grado: 7, pregunta: "¿Cuál es el comparativo de 'happy'?", opciones: ["happyer", "more happy", "happier", "happiest"], respuesta: 2 },
+            { materia: "Inglés", grado: 7, pregunta: "¿Qué significa 'friend'?", opciones: ["enemigo", "amigo", "extraño", "maestro"], respuesta: 1 },
+            { materia: "Inglés", grado: 7, pregunta: "'I ___ a book right now'", opciones: ["read", "reads", "am reading", "reading"], respuesta: 2 },
+
+            // INGLÉS GRADO 8
+            { materia: "Inglés", grado: 8, pregunta: "¿Cuál es gramaticalmente correcto? 'He doesn't like pizza'", opciones: ["correcto", "incorrecto"], respuesta: 0 },
+            { materia: "Inglés", grado: 8, pregunta: "'If I had known, I ___ him.'", opciones: ["would told", "would have told", "tell", "told"], respuesta: 1 },
+            { materia: "Inglés", grado: 8, pregunta: "¿Cuál es el presente perfecto de 'write'?", opciones: ["have wrote", "has written", "have written", "has write"], respuesta: 2 },
+            { materia: "Inglés", grado: 8, pregunta: "¿Cuál es la voz pasiva de 'They sold the house'?", opciones: ["The house was sold", "The house is sold", "The house sold", "They were sold the house"], respuesta: 0 },
+            { materia: "Inglés", grado: 8, pregunta: "'I wish I ___ to the party yesterday'", opciones: ["went", "had gone", "have gone", "will go"], respuesta: 1 },
+            { materia: "Inglés", grado: 8, pregunta: "¿Cuál es el pasado perfecto de 'see'?", opciones: ["have seen", "had saw", "had seen", "sees"], respuesta: 2 },
+            { materia: "Inglés", grado: 8, pregunta: "¿Cuál es la forma correcta? 'She said that she ___ tired'", opciones: ["is", "was", "be", "been"], respuesta: 1 },
+            { materia: "Inglés", grado: 8, pregunta: "¿Qué significa 'nevertheless'?", opciones: ["además", "sin embargo", "porque", "si"], respuesta: 1 },
+
+            // INGLÉS GRADO 9
+            { materia: "Inglés", grado: 9, pregunta: "¿Cuál es la cláusula principal? 'Although raining, she went'", opciones: ["Although raining", "she went", "raining", "went"], respuesta: 1 },
+            { materia: "Inglés", grado: 9, pregunta: "¿Cuál es el significado de 'procrastinate'?", opciones: ["Apresurarse", "Aplazar o posponer", "Persistir", "Progresar"], respuesta: 1 },
+            { materia: "Inglés", grado: 9, pregunta: "'Unless you study, you ___ pass the exam'", opciones: ["will", "won't", "would", "wouldn't"], respuesta: 1 },
+            { materia: "Inglés", grado: 9, pregunta: "¿Cuál es el antónimo de 'obvious'?", opciones: ["Clear", "Obscure", "Evident", "Apparent"], respuesta: 1 },
+            { materia: "Inglés", grado: 9, pregunta: "¿Cuál es la forma correcta de la oración? 'Neither he nor she ___ coming'", opciones: ["are", "is", "am", "be"], respuesta: 1 },
+            { materia: "Inglés", grado: 9, pregunta: "¿Qué significa 'ambiguous'?", opciones: ["Claro", "Confuso o con doble sentido", "Certero", "Preciso"], respuesta: 1 },
+            { materia: "Inglés", grado: 9, pregunta: "'The CEO, as well as the managers, ___ attending the meeting'", opciones: ["are", "is", "will", "have"], respuesta: 1 },
+            { materia: "Inglés", grado: 9, pregunta: "¿Cuál es el significado de 'benevolent'?", opciones: ["Malvado", "Generoso y amable", "Orgulloso", "Avaro"], respuesta: 1 },
+
+            // INGLÉS GRADO 10
+            { materia: "Inglés", grado: 10, pregunta: "¿Cuál es la voz pasiva de 'The cat ate the mouse'?", opciones: ["The mouse was eaten by the cat", "The mouse ate the cat", "The cat was eaten", "The mouse eaten"], respuesta: 0 },
+            { materia: "Inglés", grado: 10, pregunta: "¿Cuál es el significado de 'ambiguous'?", opciones: ["Claro", "Confuso o con doble sentido", "Certero", "Preciso"], respuesta: 1 },
+            { materia: "Inglés", grado: 10, pregunta: "'Had I known, I ___ told you'", opciones: ["would have", "will", "have", "am"], respuesta: 0 },
+            { materia: "Inglés", grado: 10, pregunta: "¿Cuál es la forma correcta del 'infinitive' split?", opciones: ["to boldly go", "to go boldly", "boldly to go", "go boldly to"], respuesta: 0 },
+            { materia: "Inglés", grado: 10, pregunta: "¿Cuál es el sinónimo de 'meticulous'?", opciones: ["Negligente", "Cuidadoso", "Rápido", "Impreciso"], respuesta: 1 },
+            { materia: "Inglés", grado: 10, pregunta: "¿Cuál es el antónimo de 'ephemeral'?", opciones: ["Temporal", "Permanente", "Transitorio", "Breve"], respuesta: 1 },
+            { materia: "Inglés", grado: 10, pregunta: "¿Qué significa 'circumlocution'?", opciones: ["Rodeo de palabras", "Brevedad", "Precisión", "Claridad"], respuesta: 0 },
+            { materia: "Inglés", grado: 10, pregunta: "¿Cuál es la estructura correcta de 'As soon as'?", opciones: ["tan pronto como", "en caso de que", "aunque", "a menos que"], respuesta: 0 },
+
+            // INGLÉS GRADO 11
+            { materia: "Inglés", grado: 11, pregunta: "¿Cuál es la estructura correcta del 'reported speech'?", opciones: ["He said me that", "He told me that", "He said to me that", "He told that"], respuesta: 1 },
+            { materia: "Inglés", grado: 11, pregunta: "¿Cuál es el significado de 'circumlocution'?", opciones: ["Rodeo de palabras", "Brevedad", "Precisión", "Claridad"], respuesta: 0 },
+            { materia: "Inglés", grado: 11, pregunta: "'The more you study, ___ you understand'", opciones: ["the better", "the best", "better", "best"], respuesta: 0 },
+            { materia: "Inglés", grado: 11, pregunta: "¿Cuál es la correcta formación del participio en 'Having ___ the exam, he was happy'?", opciones: ["passed", "pass", "passing", "passes"], respuesta: 0 },
+            { materia: "Inglés", grado: 11, pregunta: "¿Cuál es el antónimo de 'ephemeral'?", opciones: ["Temporal", "Permanente", "Transitorio", "Breve"], respuesta: 1 },
+            { materia: "Inglés", grado: 11, pregunta: "¿Qué significa 'pragmatic'?", opciones: ["Teórico", "Práctico y realista", "Idealista", "Imaginativo"], respuesta: 1 },
+            { materia: "Inglés", grado: 11, pregunta: "'Schrödinger's cat is ___ alive and dead according to quantum mechanics'", opciones: ["both", "either", "neither", "each"], respuesta: 0 },
+            { materia: "Inglés", grado: 11, pregunta: "¿Cuál es el significado de 'serendipity'?", opciones: ["Desgracia", "Hallazgo afortunado por casualidad", "Coincidencia", "Casualidad negativa"], respuesta: 1 },
+
+            // HISTORIA GRADO 6
+            { materia: "Historia", grado: 6, pregunta: "¿En qué año terminó la Segunda Guerra Mundial?", opciones: ["1943", "1944", "1945", "1946"], respuesta: 2 },
+            { materia: "Historia", grado: 6, pregunta: "¿Quién fue el primer presidente de Colombia?", opciones: ["Simón Bolívar", "Camilo Torres", "Miguel Nariño", "Francisco de Paula"], respuesta: 0 },
+            { materia: "Historia", grado: 6, pregunta: "¿En qué siglo se descubrió América?", opciones: ["XV", "XVI", "XVII", "XVIII"], respuesta: 0 },
+            { materia: "Historia", grado: 6, pregunta: "¿Cuál fue la capital de la Colonia en Colombia?", opciones: ["Bogotá", "Cartagena", "Santa Marta", "Popayán"], respuesta: 0 },
+            { materia: "Historia", grado: 6, pregunta: "¿Quién escribió la Declaración de Independencia de EE.UU.?", opciones: ["George Washington", "Thomas Jefferson", "Benjamin Franklin", "John Adams"], respuesta: 1 },
+            { materia: "Historia", grado: 6, pregunta: "¿Cuántos continentes hay?", opciones: ["5", "6", "7", "8"], respuesta: 2 },
+            { materia: "Historia", grado: 6, pregunta: "¿En qué año se firmó la Declaración de Derechos Humanos?", opciones: ["1948", "1950", "1952", "1954"], respuesta: 0 },
+            { materia: "Historia", grado: 6, pregunta: "¿Quién fue Pablo VI?", opciones: ["Pintor español", "Papa católico", "General italiano", "Científico francés"], respuesta: 1 },
+
+            // HISTORIA GRADO 7
+            { materia: "Historia", grado: 7, pregunta: "¿En qué año comenzó la Primera Guerra Mundial?", opciones: ["1912", "1914", "1916", "1918"], respuesta: 1 },
+            { materia: "Historia", grado: 7, pregunta: "¿Quién fue Cristóbal Colón?", opciones: ["Conquistador", "Navegante", "Rey", "Sacerdote"], respuesta: 1 },
+            { materia: "Historia", grado: 7, pregunta: "¿En qué año se firmó la Declaración de Independencia?", opciones: ["1774", "1776", "1778", "1780"], respuesta: 1 },
+            { materia: "Historia", grado: 7, pregunta: "¿Quién fue Napoleón?", opciones: ["Filósofo", "General francés", "Rey inglés", "Papa"], respuesta: 1 },
+            { materia: "Historia", grado: 7, pregunta: "¿En qué continente se desarrolló la civilización romana?", opciones: ["Asia", "Europa", "África", "América"], respuesta: 1 },
+            { materia: "Historia", grado: 7, pregunta: "¿En qué año terminó la Primera Guerra Mundial?", opciones: ["1916", "1917", "1918", "1919"], respuesta: 2 },
+            { materia: "Historia", grado: 7, pregunta: "¿Quién fue Alejandro Magno?", opciones: ["Emperador griego", "Emperador romano", "Rey persa", "Guerrero bárbaro"], respuesta: 0 },
+            { materia: "Historia", grado: 7, pregunta: "¿Cuál fue el imperio más grande de la antigüedad?", opciones: ["Egipcio", "Griego", "Persa", "Babilónico"], respuesta: 2 },
+
+            // HISTORIA GRADO 8
+            { materia: "Historia", grado: 8, pregunta: "¿Cuál fue el principal resultado de la Revolución Francesa?", opciones: ["Fortalecimiento de la monarquía", "Abolición del feudalismo", "Expansión del imperio", "Reforma religiosa"], respuesta: 1 },
+            { materia: "Historia", grado: 8, pregunta: "¿Quién fue Napoleón Bonaparte?", opciones: ["Filósofo francés", "Comandante militar y emperador francés", "Científico alemán", "Economista británico"], respuesta: 1 },
+            { materia: "Historia", grado: 8, pregunta: "¿Cuál fue la causa principal de la Revolución Francesa?", opciones: ["Abundancia de riqueza", "Pobreza y desigualdad", "Expansión territorial", "Guerras navales"], respuesta: 1 },
+            { materia: "Historia", grado: 8, pregunta: "¿En qué siglo ocurrió la Edad Media?", opciones: ["V-XV", "XV-XVII", "XVII-XIX", "XIX-XXI"], respuesta: 0 },
+            { materia: "Historia", grado: 8, pregunta: "¿Quién fue Luis XVI?", opciones: ["Rey francés", "Emperador alemán", "Filósofo griego", "Papa romano"], respuesta: 0 },
+            { materia: "Historia", grado: 8, pregunta: "¿Qué fue el Renacimiento?", opciones: ["Movimiento artístico medieval", "Movimiento artístico y cultural de Europa", "Reforma religiosa", "Conquista territorial"], respuesta: 1 },
+            { materia: "Historia", grado: 8, pregunta: "¿Quién fue Leonardo da Vinci?", opciones: ["Pintor y científico renacentista", "Filósofo griego", "General romano", "Poeta medieval"], respuesta: 0 },
+            { materia: "Historia", grado: 8, pregunta: "¿En qué año cayó Constantinopla?", opciones: ["1250", "1350", "1450", "1550"], respuesta: 2 },
+
+            // HISTORIA GRADO 9
+            { materia: "Historia", grado: 9, pregunta: "¿Qué fue el Tratado de Versalles?", opciones: ["Alianza militar", "Acuerdo comercial", "Tratado de paz de la I Guerra Mundial", "Pacto científico"], respuesta: 2 },
+            { materia: "Historia", grado: 9, pregunta: "¿Quién fue Mahatma Gandhi?", opciones: ["Emperador indio", "Líder de la independencia de India", "Filósofo británico", "Político estadounidense"], respuesta: 1 },
+            { materia: "Historia", grado: 9, pregunta: "¿En qué año cayó el muro de Berlín?", opciones: ["1987", "1988", "1989", "1990"], respuesta: 2 },
+            { materia: "Historia", grado: 9, pregunta: "¿Quién fue Adolf Hitler?", opciones: ["Filósofo", "Dictador alemán", "Físico", "Artista"], respuesta: 1 },
+            { materia: "Historia", grado: 9, pregunta: "¿Cuál fue el holocausto?", opciones: ["Guerra mundial", "Genocidio de judíos", "Revolución política", "Tratado de paz"], respuesta: 1 },
+            { materia: "Historia", grado: 9, pregunta: "¿Quién fue Benito Mussolini?", opciones: ["Líder fascista italiano", "Presidente estadounidense", "Filósofo británico", "General francés"], respuesta: 0 },
+            { materia: "Historia", grado: 9, pregunta: "¿En qué año se bombardeó Hiroshima?", opciones: ["1943", "1944", "1945", "1946"], respuesta: 2 },
+            { materia: "Historia", grado: 9, pregunta: "¿Quién fue Joseph Stalin?", opciones: ["Líder soviético", "Presidente estadounidense", "Rey británico", "Papa"], respuesta: 0 },
+
+            // HISTORIA GRADO 10
+            { materia: "Historia", grado: 10, pregunta: "¿Cuál fue el evento que marcó el inicio de la Segunda Guerra Mundial?", opciones: ["Invasión de Polonia", "Ataque a Pearl Harbor", "Caída de Francia", "Liberación de Varsovia"], respuesta: 0 },
+            { materia: "Historia", grado: 10, pregunta: "¿Quién fue Winston Churchill?", opciones: ["Primer Ministro británico", "Presidente estadounidense", "Dictador alemán", "Líder soviético"], respuesta: 0 },
+            { materia: "Historia", grado: 10, pregunta: "¿En qué país ocurrió la Revolución Rusa?", opciones: ["Alemania", "Francia", "Unión Soviética", "Italia"], respuesta: 2 },
+            { materia: "Historia", grado: 10, pregunta: "¿Quién fue Franklin D. Roosevelt?", opciones: ["Presidente estadounidense", "Primer Ministro británico", "Líder francés", "General alemán"], respuesta: 0 },
+            { materia: "Historia", grado: 10, pregunta: "¿En qué año se lanzaron las bombas atómicas en Japón?", opciones: ["1943", "1944", "1945", "1946"], respuesta: 2 },
+            { materia: "Historia", grado: 10, pregunta: "¿Quién fue Dwight D. Eisenhower?", opciones: ["Escritor estadounidense", "Comandante aliado en la IIGM", "Inventor alemán", "Filósofo francés"], respuesta: 1 },
+            { materia: "Historia", grado: 10, pregunta: "¿En qué año fue la batalla de Stalingrado?", opciones: ["1940", "1941", "1942", "1943"], respuesta: 2 },
+            { materia: "Historia", grado: 10, pregunta: "¿Cuál fue el Día D?", opciones: ["Desembarco aliado en Normandía", "Invasión de Polonia", "Ataque a Pearl Harbor", "Caída de Berlín"], respuesta: 0 },
+
+            // HISTORIA GRADO 11
+            { materia: "Historia", grado: 11, pregunta: "¿Cuál fue el resultado de la Guerra Fría?", opciones: ["Victoria soviética", "Victoria estadounidense", "División del mundo bipolar", "Unificación comunista"], respuesta: 2 },
+            { materia: "Historia", grado: 11, pregunta: "¿Quién fue Fidel Castro?", opciones: ["Líder cubano", "Presidente estadounidense", "Rey español", "Papa"], respuesta: 0 },
+            { materia: "Historia", grado: 11, pregunta: "¿Cuál fue la Crisis de los Misiles?", opciones: ["Conflicto en Corea", "Confrontación entre EE.UU. y URSS por misiles en Cuba", "Guerra en Vietnam", "Invasión de Afganistán"], respuesta: 1 },
+            { materia: "Historia", grado: 11, pregunta: "¿Quién fue Martin Luther King?", opciones: ["Presidente estadounidense", "Activista por derechos civiles", "Militar británico", "Científico alemán"], respuesta: 1 },
+            { materia: "Historia", grado: 11, pregunta: "¿En qué año se desintegró la Unión Soviética?", opciones: ["1989", "1990", "1991", "1992"], respuesta: 2 },
+            { materia: "Historia", grado: 11, pregunta: "¿Quién fue Nikita Khrushchev?", opciones: ["Líder soviético", "Presidente estadounidense", "Filósofo británico", "Rey español"], respuesta: 0 },
+            { materia: "Historia", grado: 11, pregunta: "¿En qué año se construyó el muro de Berlín?", opciones: ["1959", "1960", "1961", "1962"], respuesta: 2 },
+            { materia: "Historia", grado: 11, pregunta: "¿Cuál fue el resultado del Tratado de Helsinki?", opciones: ["Paz en Europa", "Reconocimiento de derechos humanos", "Fin de la URSS", "Reunificación alemana"], respuesta: 1 }
+        ];
+
+        // ============================================
+        // VARIABLES GLOBALES
+        // ============================================
+
+        let materiaActual = "";
+        let gradoActual = 0;
+        let preguntasJuego = [];
+        let preguntaActual = 0;
+        let puntaje = 0;
+        let vidas = 3;
+        let racha = 0;
+        let respuestasCorrectas = 0;
+        let respuestaSeleccionada = -1;
+        let puntuacionesGuardadas = [];
+
+        // Cargar puntajes guardados al iniciar
+        function cargarPuntajes() {
+            const puntajesSaved = localStorage.getItem('desafioEscolarPuntajes');
+            if (puntajesSaved) {
+                puntuacionesGuardadas = JSON.parse(puntajesSaved);
+            }
+        }
+
+        // Guardar puntajes en localStorage
+        function guardarPuntajes() {
+            localStorage.setItem('desafioEscolarPuntajes', JSON.stringify(puntuacionesGuardadas));
+        }
+
+        // Cargar puntajes al abrir la página
+        cargarPuntajes();
+
+        // ============================================
+        // FUNCIONES DE NAVEGACIÓN
+        // ============================================
+
+        function irA(pantalla) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(pantalla).classList.add('active');
+        }
+
+        function seleccionarMateria(materia) {
+            materiaActual = materia;
+            document.getElementById('materiaSeleccionada').textContent = materia;
+            irA('seleccionarGrado');
+        }
+
+        function seleccionarGrado(grado) {
+            gradoActual = grado;
+            iniciarJuego();
+        }
+
+        // ============================================
+        // LÓGICA DEL JUEGO
+        // ============================================
+
+        function iniciarJuego() {
+            preguntasJuego = preguntas.filter(p => p.materia === materiaActual && p.grado === gradoActual);
+            if (preguntasJuego.length === 0) {
+                alert("No hay preguntas disponibles para esta combinación");
+                return;
+            }
+
+            // Mezclar preguntas
+            preguntasJuego = preguntasJuego.sort(() => Math.random() - 0.5).slice(0, 10);
+
+            preguntaActual = 0;
+            puntaje = 0;
+            vidas = 3;
+            racha = 0;
+            respuestasCorrectas = 0;
+            respuestaSeleccionada = -1;
+
+            mostrarPregunta();
+            irA('juego');
+        }
+
+        function mostrarPregunta() {
+            if (preguntaActual >= preguntasJuego.length || vidas === 0) {
+                finalizarJuego();
+                return;
+            }
+
+            const pregunta = preguntasJuego[preguntaActual];
+
+            document.getElementById('gameMateria').textContent = materiaActual;
+            document.getElementById('gameGrado').textContent = gradoActual + "°";
+            document.getElementById('gamePuntaje').textContent = puntaje;
+            document.getElementById('gameVidas').innerHTML = "❤️".repeat(Math.max(0, vidas)) + "🖤".repeat(3 - Math.max(0, vidas));
+            document.getElementById('questionNumber').textContent = `Pregunta ${preguntaActual + 1}`;
+            document.getElementById('questionText').textContent = pregunta.pregunta;
+            document.getElementById('contador').textContent = `${preguntaActual + 1}/${preguntasJuego.length}`;
+
+            // Actualizar progreso
+            const progreso = ((preguntaActual + 1) / preguntasJuego.length) * 100;
+            document.getElementById('progreso').style.width = progreso + '%';
+
+            // Generar opciones
+            const optionsGrid = document.getElementById('optionsGrid');
+            optionsGrid.innerHTML = '';
+            const letras = ['A', 'B', 'C', 'D'];
+
+            pregunta.opciones.forEach((opcion, index) => {
+                const div = document.createElement('div');
+                div.className = 'option';
+                div.textContent = `${letras[index]}) ${opcion}`;
+                div.onclick = () => seleccionarOpcion(index);
+                optionsGrid.appendChild(div);
+            });
+
+            document.getElementById('mensaje').style.display = 'none';
+            respuestaSeleccionada = -1;
+            document.getElementById('btnResponder').textContent = 'Responder';
+            document.getElementById('btnResponder').onclick = responder;
+            document.getElementById('btnResponder').disabled = false;
+        }
+
+        function seleccionarOpcion(index) {
+            respuestaSeleccionada = index;
+            document.querySelectorAll('.option').forEach((opt, i) => {
+                opt.classList.toggle('selected', i === index);
+            });
+        }
+
+        function responder() {
+            if (respuestaSeleccionada === -1) {
+                mostrarMensaje("Por favor, selecciona una opción", "error");
+                return;
+            }
+
+            const pregunta = preguntasJuego[preguntaActual];
+            const esCorrecta = respuestaSeleccionada === pregunta.respuesta;
+
+            const optionsGrid = document.getElementById('optionsGrid');
+            const options = optionsGrid.querySelectorAll('.option');
+
+            // Mostrar respuesta correcta
+            options.forEach((opt, i) => {
+                opt.classList.remove('selected');
+                if (i === pregunta.respuesta) {
+                    opt.classList.add('correct');
+                }
+            });
+
+            // Cambiar boton a "Siguiente"
+            document.getElementById('btnResponder').textContent = 'Siguiente Pregunta';
+            document.getElementById('btnResponder').onclick = () => siguientePregunta();
+            document.getElementById('btnResponder').disabled = false;
+
+            if (esCorrecta) {
+                racha++;
+                respuestasCorrectas++;
+                let puntosGanados = 10;
+                if (racha > 1 && racha % 3 === 0) {
+                    puntosGanados += 5;
+                }
+                puntaje += puntosGanados;
+                mostrarMensaje(`✅ ¡Correcto! +${puntosGanados} puntos`, "success");
+            } else {
+                racha = 0;
+                vidas--;
+                mostrarMensaje(`❌ ¡Incorrecto! La respuesta correcta era: ${pregunta.opciones[pregunta.respuesta]}`, "error");
+            }
+
+            document.getElementById('gamePuntaje').textContent = puntaje;
+            document.getElementById('gameVidas').innerHTML = "❤️".repeat(Math.max(0, vidas)) + "🖤".repeat(3 - Math.max(0, vidas));
+        }
+
+        function siguientePregunta() {
+            preguntaActual++;
+            if (preguntaActual >= preguntasJuego.length || vidas === 0) {
+                finalizarJuego();
+            } else {
+                mostrarPregunta();
+            }
+        }
+
+        function mostrarMensaje(texto, tipo) {
+            const mensaje = document.getElementById('mensaje');
+            mensaje.textContent = texto;
+            mensaje.className = `message ${tipo}`;
+            mensaje.style.display = 'block';
+        }
+
+        function finalizarJuego() {
+            const porcentaje = (respuestasCorrectas / preguntasJuego.length) * 100;
+            let rating = "📚";
+            let mensaje = "Sigue estudiando";
+
+            if (vidas === 0) {
+                rating = "💀";
+                mensaje = "¡Sin vidas! Sigue intentando.";
+            } else if (porcentaje === 100) {
+                rating = "🌟";
+                mensaje = "¡PERFECTO! ¡Respondiste todas correctamente!";
+            } else if (porcentaje >= 80) {
+                rating = "🌟";
+                mensaje = "¡EXCELENTE TRABAJO!";
+            } else if (porcentaje >= 60) {
+                rating = "👍";
+                mensaje = "¡Muy bien! Sigue practicando.";
+            } else if (porcentaje >= 40) {
+                rating = "📚";
+                mensaje = "Buen intento. Estudia un poco más.";
+            }
+
+            const contenido = `
+                <div class="rating">${rating}</div>
+                <div class="rating-text">${mensaje}</div>
+                <div class="final-score">${puntaje} puntos</div>
+                <div class="game-info" style="margin-top: 30px;">
+                    <div class="info-item">
+                        <div class="info-label">Materia</div>
+                        <div class="info-value">${materiaActual}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Grado</div>
+                        <div class="info-value">${gradoActual}°</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Correctas</div>
+                        <div class="info-value">${respuestasCorrectas}/${preguntasJuego.length}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Porcentaje</div>
+                        <div class="info-value">${porcentaje.toFixed(1)}%</div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('resultadoContenido').innerHTML = contenido;
+
+            // Guardar puntuación
+            puntuacionesGuardadas.push({
+                materia: materiaActual,
+                grado: gradoActual,
+                puntaje: puntaje,
+                correctas: respuestasCorrectas,
+                total: preguntasJuego.length,
+                porcentaje: porcentaje.toFixed(1),
+                fecha: new Date().toLocaleString()
+            });
+            guardarPuntajes();
+
+            irA('resultadoFinal');
+        }
+
+        function confirmarSalir() {
+            if (confirm("¿Estás seguro de que deseas salir del juego?")) {
+                irA('menuPrincipal');
+            }
+        }
+
+        // ============================================
+        // PUNTAJES
+        // ============================================
+
+        function mostrarPuntajes() {
+            irA('verPuntajes');
+
+            if (puntuacionesGuardadas.length === 0) {
+                document.getElementById('tablaRespuesta').innerHTML = '<p style="text-align: center; color: #666;">No hay puntajes registrados aún.</p>';
+                return;
+            }
+
+            // Agrupar por Grado y Materia
+            let tabla = '<table class="scores-table"><thead><tr><th>#</th><th>Materia</th><th>Grado</th><th>Intentos</th><th>Puntaje</th><th>Correctas</th><th>Porcentaje</th><th>Resultado</th><th>Fecha</th></tr></thead><tbody>';
+
+            puntuacionesGuardadas.forEach((p, index) => {
+                let resultado = "📚 Necesita práctica";
+                if (p.porcentaje == 100) {
+                    resultado = "🌟 Perfecto";
+                } else if (p.porcentaje >= 80) {
+                    resultado = "🌟 Excelente";
+                } else if (p.porcentaje >= 60) {
+                    resultado = "👍 Muy bien";
+                } else if (p.porcentaje >= 40) {
+                    resultado = "📚 Buen intento";
+                } else {
+                    resultado = "💀 Sin vidas";
+                }
+
+                tabla += `<tr>
+                    <td>${index + 1}</td>
+                    <td><strong>${p.materia}</strong></td>
+                    <td>${p.grado}°</td>
+                    <td style="text-align: center;">1</td>
+                    <td><strong style="color: #667eea;">${p.puntaje}</strong></td>
+                    <td>${p.correctas}/${p.total}</td>
+                    <td><strong>${p.porcentaje}%</strong></td>
+                    <td>${resultado}</td>
+                    <td>${p.fecha || 'N/A'}</td>
+                </tr>`;
+            });
+
+            // Resumen por Materia y Grado
+            tabla += '</tbody></table>';
+            tabla += '<h3 style="margin-top: 30px; color: #667eea;">📈 Resumen por Materia y Grado</h3>';
+            tabla += '<table class="scores-table"><thead><tr><th>Materia</th><th>Grado</th><th>Intentos</th><th>Puntaje Total</th><th>Promedio</th><th>Mejor Resultado</th></tr></thead><tbody>';
+
+            // Agrupar por materia y grado
+            const grupos = {};
+            puntuacionesGuardadas.forEach(p => {
+                const clave = `${p.materia}|${p.grado}`;
+                if (!grupos[clave]) {
+                    grupos[clave] = [];
+                }
+                grupos[clave].push(p);
+            });
+
+            // Mostrar resumen
+            Object.keys(grupos).sort().forEach(clave => {
+                const [materia, grado] = clave.split('|');
+                const partidas = grupos[clave];
+                const totalPuntos = partidas.reduce((sum, p) => sum + p.puntaje, 0);
+                const promedioPuntaje = (totalPuntos / partidas.length).toFixed(0);
+                const mejorResultado = Math.max(...partidas.map(p => p.puntaje));
+
+                tabla += `<tr>
+                    <td><strong>${materia}</strong></td>
+                    <td>${grado}°</td>
+                    <td style="text-align: center;"><strong>${partidas.length}</strong></td>
+                    <td style="text-align: center; color: #667eea;"><strong>${totalPuntos}</strong></td>
+                    <td style="text-align: center;"><strong>${promedioPuntaje}</strong></td>
+                    <td style="text-align: center; color: green;"><strong>${mejorResultado}</strong></td>
+                </tr>`;
+            });
+
+            const totalPuntos = puntuacionesGuardadas.reduce((sum, p) => sum + p.puntaje, 0);
+            const totalPartidas = puntuacionesGuardadas.length;
+            tabla += `<tr style="background: #f0f4ff; font-weight: bold;">
+                <td colspan="2">TOTAL GENERAL</td>
+                <td style="text-align: center;">${totalPartidas}</td>
+                <td style="text-align: center;">${totalPuntos}</td>
+                <td style="text-align: center;">${(totalPuntos / totalPartidas).toFixed(0)}</td>
+                <td style="text-align: center;">${Math.max(...puntuacionesGuardadas.map(p => p.puntaje))}</td>
+            </tr>`;
+
+            tabla += '</tbody></table>';
+            document.getElementById('tablaRespuesta').innerHTML = tabla;
+        }
+
+        function salir() {
+            alert("¡Gracias por jugar Desafío Escolar! ¡Hasta luego! 👋");
+        }
+    </script>
+</body>
+</html>
